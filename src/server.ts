@@ -1,5 +1,7 @@
 import express from 'express';
 import { DataBaseConnections } from './db/data-source';
+import accountRoutes from "./routes/account.routes";
+import transferRoutes from "./routes/transfer.routes";
 
 const app = express();
 const PORT = Number(process.env.PORT) || 3000;
@@ -27,6 +29,10 @@ async function main(): Promise<void> {
     console.log(`Server listening on :${PORT}`);
   });
 }
+
+// Register API routes
+app.use("/accounts", accountRoutes);
+app.use("/transfers", transferRoutes);
 
 // Only start when run directly, so tests can import `app` without opening a port
 if (require.main === module) {
