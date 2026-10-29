@@ -1,0 +1,9 @@
+{
+  "en": {
+    "INTERNAL_SERVER_ERROR": "Internal server error",
+    "SOMETHING_WENT_WRONG": "Something went wrong",
+    "INVALID_REQUEST_HEADERS": "Invalid request headers",
+    "INVALID_REQUEST_DATA": "Invalid request data @Parameter@",
+    "PARAMETERS_REQUIRED": "@Parameter@ is required"
+  }
+}
