@@ -1,6 +1,7 @@
-import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
 import { Account } from './account.entity';
 import { Transfer } from './transfer.entity';
+import { bigintTransformer } from '../../utils/transformers';
 
 export type TransactionType = 'CREDIT' | 'DEBIT';
 
@@ -15,10 +16,10 @@ export class Transaction {
   @Column({ type: 'varchar', length: 10 })
   type!: TransactionType;
 
-  @Column({ type: 'bigint'})
+  @Column({ type: 'bigint', transformer: bigintTransformer})
   amount!: number;
 
-  @Column({ name: 'balance_after', type: 'bigint' })
+  @Column({ name: 'balance_after', type: 'bigint', transformer: bigintTransformer })
   balanceAfter!: number;
 
   @Column({ type: 'varchar', length: 255, nullable: true })
@@ -29,9 +30,6 @@ export class Transaction {
 
   @CreateDateColumn({ name: 'created_at', type: 'timestamptz' })
   createdAt!: Date;
-
-  @CreateDateColumn({ name: 'updated_at', type: 'timestamptz' })
-  updatedAt!: Date;
 
   @ManyToOne(() => Account, {
     nullable: false,

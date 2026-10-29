@@ -43,7 +43,7 @@ export class AccountService {
     return this.dataSource.transaction(async (manager) => {
       const account = await this.getLockedAccount(manager, accountId);
 
-      account.balance += payload.amount;
+      account.balance =  account.balance + payload.amount;
       await manager.getRepository(Account).save(account);
 
       const transaction = manager.getRepository(Transaction).create({

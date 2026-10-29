@@ -1,5 +1,6 @@
-import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
 import { Account } from './account.entity';
+import { bigintTransformer } from '../../utils/transformers';
 
 @Entity({ name: 'transfers' })
 export class Transfer {
@@ -12,7 +13,7 @@ export class Transfer {
   @Column({ name: 'to_account_id', type: 'uuid' })
   toAccountId!: string;
 
-  @Column({ type: 'bigint' })
+  @Column({ type: 'bigint', transformer: bigintTransformer  })
   amount!: number;
 
   @Column({ type: 'varchar' })
@@ -23,9 +24,6 @@ export class Transfer {
 
   @CreateDateColumn({ name: 'created_at', type: 'timestamptz' })
   createdAt!: Date;
-
-  @CreateDateColumn({ name: 'updated_at', type: 'timestamptz' })
-  updatedAt!: Date;
 
   @ManyToOne(() => Account, {
     nullable: false,
