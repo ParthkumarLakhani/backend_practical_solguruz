@@ -1,3 +1,4 @@
+
 import { DataSource, EntityManager } from "typeorm";
 import { DataBaseConnections } from "../db/data-source";
 import { Account } from "../db/entities/account.entity";
@@ -12,27 +13,35 @@ export class AccountService {
   private readonly dataSource: DataSource = DataBaseConnections;
 
   async createAccount(payload: CreateAccountDto) {
-    const accountRepository = this.dataSource.getRepository(Account);
+    try {
+      const accountRepository = this.dataSource.getRepository(Account);
 
-    const account = accountRepository.create({
-      ownerName: payload.ownerName,
-      currency: payload.currency.toUpperCase(),
-      balance: 0,
-    });
+      const account = accountRepository.create({
+        ownerName: payload.ownerName,
+        currency: payload.currency.toUpperCase(),
+        balance: 0,
+      });
 
-    return accountRepository.save(account);
+      return await accountRepository.save(account);
+    } catch (error: unknown) {
+      throw error;
+    }
   }
 
   async getAccount(accountId: string) {
-    const account = await this.dataSource
-      .getRepository(Account)
-      .findOneBy({ id: accountId });
+    try {
+      const account = await this.dataSource
+        .getRepository(Account)
+        .findOneBy({ id: accountId });
 
-    if (!account) {
-      throw new Error("ACCOUNT_NOT_FOUND");
+      if (!account) {
+        throw new Error("ACCOUNT_NOT_FOUND");
+      }
+
+      return account;
+    } catch (error: unknown) {
+      throw error;
     }
-
-    return account;
   }
 
   async creditAccount(
@@ -40,28 +49,32 @@ export class AccountService {
     payload: MoneyOperationDto,
     idempotencyKey: string,
   ) {
-    return this.dataSource.transaction(async (manager) => {
-      const account = await this.getLockedAccount(manager, accountId);
+    try {
+      return await this.dataSource.transaction(async (manager) => {
+        const account = await this.getLockedAccount(manager, accountId);
 
-      account.balance =  account.balance + payload.amount;
-      await manager.getRepository(Account).save(account);
+        account.balance = account.balance + payload.amount;
+        await manager.getRepository(Account).save(account);
 
-      const transaction = manager.getRepository(Transaction).create({
-        accountId,
-        type: "CREDIT",
-        amount: payload.amount,
-        reference: payload.reference,
-        balanceAfter: account.balance,
+        const transaction = manager.getRepository(Transaction).create({
+          accountId,
+          type: "CREDIT",
+          amount: payload.amount,
+          reference: payload.reference,
+          balanceAfter: account.balance,
+        });
+
+        await manager.getRepository(Transaction).save(transaction);
+
+        // TODO: Persist and check the idempotency key in this transaction.
+        // Do not consider this operation idempotent until that is implemented.
+        void idempotencyKey;
+
+        return { account, transaction };
       });
-
-      await manager.getRepository(Transaction).save(transaction);
-
-      // TODO: Persist and check the idempotency key in this transaction.
-      // Do not consider this operation idempotent until that is implemented.
-      void idempotencyKey;
-
-      return { account, transaction };
-    });
+    } catch (error: unknown) {
+      throw error;
+    }
   }
 
   async debitAccount(
@@ -69,74 +82,87 @@ export class AccountService {
     payload: MoneyOperationDto,
     idempotencyKey: string,
   ) {
-    return this.dataSource.transaction(async (manager) => {
-      const account = await this.getLockedAccount(manager, accountId);
+    try {
+      return await this.dataSource.transaction(async (manager) => {
+        const account = await this.getLockedAccount(manager, accountId);
 
-      if (account.balance < payload.amount) {
-        throw new Error("INSUFFICIENT_BALANCE");
-      }
+        if (account.balance < payload.amount) {
+          throw new Error("INSUFFICIENT_BALANCE");
+        }
 
-      account.balance -= payload.amount;
-      await manager.getRepository(Account).save(account);
 
-      const transaction = manager.getRepository(Transaction).create({
-        accountId,
-        type: "DEBIT",
-        amount: payload.amount,
-        reference: payload.reference,
-        balanceAfter: account.balance,
+        account.balance -= payload.amount;
+        await manager.getRepository(Account).save(account);
+
+        const transaction = manager.getRepository(Transaction).create({
+          accountId,
+          type: "DEBIT",
+          amount: payload.amount,
+          reference: payload.reference,
+          balanceAfter: account.balance,
+        });
+
+        await manager.getRepository(Transaction).save(transaction);
+
+        // TODO: Persist and check the idempotency key in this transaction.
+        void idempotencyKey;
+
+        return { account, transaction };
       });
-
-      await manager.getRepository(Transaction).save(transaction);
-
-      // TODO: Persist and check the idempotency key in this transaction.
-      void idempotencyKey;
-
-      return { account, transaction };
-    });
+    } catch (error: unknown) {
+      throw error;
+    }
   }
 
   async getAccountTransactions(
     accountId: string,
     pagination: PaginationDto,
   ) {
-    await this.getAccount(accountId);
+    try {
+      await this.getAccount(accountId);
 
-    const [transactions, total] = await this.dataSource
-      .getRepository(Transaction)
-      .findAndCount({
-        where: { accountId },
-        order: { createdAt: "DESC" },
-        take: pagination.limit,
-        skip: pagination.offset,
-      });
+      const [transactions, total] = await this.dataSource
+        .getRepository(Transaction)
+        .findAndCount({
+          where: { accountId },
+          order: { createdAt: "DESC" },
+          take: pagination.limit,
+          skip: pagination.offset,
+        });
 
-    return {
-      transactions,
-      pagination: {
-        limit: pagination.limit,
-        offset: pagination.offset,
-        total,
-      },
-    };
+      return {
+        transactions,
+        pagination: {
+          limit: pagination.limit,
+          offset: pagination.offset,
+          total,
+        },
+      };
+    } catch (error: unknown) {
+      throw error;
+    }
   }
 
   private async getLockedAccount(
     manager: EntityManager,
     accountId: string,
   ): Promise<Account> {
-    const account = await manager
-      .getRepository(Account)
-      .createQueryBuilder("account")
-      .setLock("pessimistic_write")
-      .where("account.id = :accountId", { accountId })
-      .getOne();
+    try {
+      const account = await manager
+        .getRepository(Account)
+        .createQueryBuilder("account")
+        .setLock("pessimistic_write")
+        .where("account.id = :accountId", { accountId })
+        .getOne();
 
-    if (!account) {
-      throw new Error("ACCOUNT_NOT_FOUND");
+      if (!account) {
+        throw new Error("ACCOUNT_NOT_FOUND");
+      }
+
+      return account;
+    } catch (error: unknown) {
+      throw error;
     }
-
-    return account;
   }
 }
 

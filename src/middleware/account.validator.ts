@@ -31,63 +31,67 @@ export type MoneyOperationDto = z.infer<typeof moneyOperationSchema>;
 export type PaginationDto = z.infer<typeof paginationSchema>;
 
 export class AccountValidator {
-  /**
-   * Validate the request body for account creation.
-   */
-  createAccount: RequestHandler = (req, res, next): void => {
-    const result = createAccountSchema.safeParse(req.body);
+  createAccount: RequestHandler = async (req, res, next): Promise<void> => {
+    try {
+      const result = createAccountSchema.safeParse(req.body);
 
-    if (!result.success) {
-      ResponseUtil.zodResponse(result, req, res, next);
-      return;
+      if (!result.success) {
+        ResponseUtil.zodResponse(result, req, res, next);
+        return;
+      }
+
+      res.locals.validatedBody = result.data;
+      next();
+    } catch (error: unknown) {
+      ResponseUtil.error(res, "ACCOUNT_VALIDATION_FAILED", 500);
     }
-
-    res.locals.validatedBody = result.data;
-    next();
   };
 
-  /**
-   * Validate the account ID route parameter.
-   */
-  validateAccountId: RequestHandler = (req, res, next): void => {
-    const result = accountIdSchema.safeParse(req.params);
+  validateAccountId: RequestHandler = async (req, res, next): Promise<void> => {
+    try {
+      const result = accountIdSchema.safeParse(req.params);
 
-    if (!result.success) {
-      ResponseUtil.zodResponse(result, req, res, next);
-      return;
+      if (!result.success) {
+        ResponseUtil.zodResponse(result, req, res, next);
+        return;
+      }
+
+      next();
+    } catch (error: unknown) {
+      ResponseUtil.error(res, "ACCOUNT_ID_VALIDATION_FAILED", 500);
     }
-
-    next();
   };
 
-  /**
-   * Validate credit and debit request bodies.
-   */
-  validateMoney: RequestHandler = (req, res, next): void => {
-    const result = moneyOperationSchema.safeParse(req.body);
+  validateMoney: RequestHandler = async (req, res, next): Promise<void> => {
+    try {
+      const result = moneyOperationSchema.safeParse(req.body);
 
-    if (!result.success) {
-      ResponseUtil.zodResponse(result, req, res, next);
-      return;
+      if (!result.success) {
+        ResponseUtil.zodResponse(result, req, res, next);
+        return;
+      }
+
+      res.locals.validatedBody = result.data;
+      next();
+    } catch (error: unknown) {
+      ResponseUtil.error(res, "MONEY_VALIDATION_FAILED", 500);
     }
-
-    res.locals.validatedBody = result.data;
-    next();
   };
 
-  /**
-   * Validate transaction pagination query parameters.
-   */
-  validatePagination: RequestHandler = (req, res, next): void => {
-    const result = paginationSchema.safeParse(req.query);
+  validatePagination: RequestHandler = async (req, res, next): Promise<void> => {
+    try {
+      const result = paginationSchema.safeParse(req.query);
 
-    if (!result.success) {
-      ResponseUtil.zodResponse(result, req, res, next);
-      return;
+      if (!result.success) {
+        ResponseUtil.zodResponse(result, req, res, next);
+        return;
+      }
+
+      res.locals.pagination = result.data;
+      next();
+    } catch (error: unknown) {
+      ResponseUtil.error(res, "PAGINATION_VALIDATION_FAILED", 500);
     }
-
-    res.locals.pagination = result.data;
-    next();
   };
 }
 
