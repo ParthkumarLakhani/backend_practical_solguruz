@@ -2,11 +2,15 @@ import express from 'express';
 import { DataBaseConnections } from './db/data-source';
 import accountRoutes from "./routes/account.routes";
 import transferRoutes from "./routes/transfer.routes";
+import { requestLogger } from './middleware/request-logger';
+import helmet from 'helmet';
 
 const app = express();
 const PORT = Number(process.env.PORT) || 3000;
 
+app.use(helmet());
 app.use(express.json());
+app.use(requestLogger);
 
 // Liveness check, including database reachability
 app.get('/health', async (_req, res) => {
