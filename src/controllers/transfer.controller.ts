@@ -11,22 +11,19 @@ export class TransferController {
     this.transferService = new TransferService();
   }
 
-  private getLanguage(req: Parameters<RequestHandler>[0]): string {
-    const language = req.headers.language;
-    return typeof language === "string" ? language : "en";
-  }
-
-  createTransfer: RequestHandler = async (req, res, next): Promise<void> => {
+  createTransfer: RequestHandler = async (req, res): Promise<void> => {
     try {
       const payload = res.locals.validatedBody as CreateTransferDto;
       const idempotencyKey = req.headers["idempotency-key"];
 
-      if (typeof idempotencyKey !== "string") {
+      if (
+        typeof idempotencyKey !== "string" ||
+        idempotencyKey.trim().length === 0
+      ) {
         ResponseUtil.error(
           res,
           "IDEMPOTENCY_KEY_REQUIRED",
-          400,
-          this.getLanguage(req)
+          400
         );
         return;
       }
@@ -40,11 +37,14 @@ export class TransferController {
         res,
         "TRANSFER_CREATED",
         transfer,
-        201,
-        this.getLanguage(req)
+        201
       );
-    } catch (error: unknown) {
-      next(error);
+    } catch (error: any) {
+      ResponseUtil.error(
+        res,
+        error.message,
+        400
+      );
     }
   };
 }

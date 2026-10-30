@@ -4,6 +4,23 @@
     "SOMETHING_WENT_WRONG": "Something went wrong",
     "INVALID_REQUEST_HEADERS": "Invalid request headers",
     "INVALID_REQUEST_DATA": "Invalid request data @Parameter@",
-    "PARAMETERS_REQUIRED": "@Parameter@ is required"
+    "PARAMETERS_REQUIRED": "@Parameter@ is required",
+    "ACCOUNT_CREATED": "Account created successfully",
+    "ACCOUNT_FETCHED": "Account fetched successfully",
+    "IDEMPOTENCY_KEY_REQUIRED": "Idempotency key is required",
+    "ACCOUNT_CREDITED": "Amount has been credited successfully",
+    "TRANSACTION_NOT_FOUND": "Transaction not found",
+    "ACCOUNT_DEBITED": "Amount has been debited successfully",
+    "TRANSACTIONS_FETCHED": "Transactions fetched successfully",
+    "TRANSFER_CREATED": "Transfer created successfully",
+    "ACCOUNT_NOT_FOUND": "Account not found",
+    "CURRENCY_MISMATCH": "Currencies do not match",
+    "INSUFFICIENT_BALANCE": "Insufficient balance",
+    "ACCOUNT_VALIDATION_FAILED": "Account validation failed",
+    "ACCOUNT_ID_VALIDATION_FAILED": "Account ID validation failed",
+    "MONEY_VALIDATION_FAILED": "Money operation validation failed",
+    "PAGINATION_VALIDATION_FAILED": "Pagination validation failed",
+    "IDEMPOTENCY_KEY_VALIDATION_FAILED": "Idempotency key validation failed",
+    "TRANSFER_VALIDATION_FAILED": "Transfer validation failed"
   }
 }

@@ -22,19 +22,30 @@ const createTransferSchema = z
 export type CreateTransferDto = z.infer<typeof createTransferSchema>;
 
 export class TransferValidator {
-  /**
-   * Validate the request body for creating a transfer.
-   */
-  createTransfer: RequestHandler = (req, res, next): void => {
-    const result = createTransferSchema.safeParse(req.body);
+  createTransfer: RequestHandler = async (
+    req,
+    res,
+    next
+  ): Promise<void> => {
+    try {
+      const result = createTransferSchema.safeParse(req.body);
 
-    if (!result.success) {
-      ResponseUtil.zodResponse(result, req, res, next);
-      return;
+      if (!result.success) {
+        ResponseUtil.zodResponse(result, req, res, next);
+        return;
+      }
+
+      res.locals.validatedBody = result.data;
+      next();
+    } catch (error: unknown) {
+
+      ResponseUtil.error(
+        res,
+        "TRANSFER_VALIDATION_FAILED",
+        500,
+        "en"
+      );
     }
-
-    res.locals.validatedBody = result.data;
-    next();
   };
 }
 

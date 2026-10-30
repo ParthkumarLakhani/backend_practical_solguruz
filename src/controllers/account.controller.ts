@@ -1,11 +1,10 @@
 
 import type { RequestHandler } from "express";
 import ResponseUtil from "../utils/response";
-import {
-  AccountValidator,
-  type CreateAccountDto,
-  type MoneyOperationDto,
-  type PaginationDto,
+import type {
+  CreateAccountDto,
+  MoneyOperationDto,
+  PaginationDto,
 } from "../middleware/account.validator";
 import { AccountService } from "../services/account.service";
 
@@ -16,30 +15,27 @@ export class AccountController {
     this.accountService = new AccountService();
   }
 
-  private getLanguage(req: Parameters<RequestHandler>[0]): string {
-    const language = req.headers.language;
-    return typeof language === "string" ? language : "en";
-  }
-
-  createAccount: RequestHandler = async (req, res, next): Promise<void> => {
+  createAccount: RequestHandler = async (req, res): Promise<void> => {
     try {
       const payload = res.locals.validatedBody as CreateAccountDto;
-
       const account = await this.accountService.createAccount(payload);
 
       ResponseUtil.success(
         res,
         "ACCOUNT_CREATED",
         account,
-        201,
-        this.getLanguage(req)
+        201
       );
-    } catch (error: unknown) {
-      next(error);
+    } catch (error: any) {
+      ResponseUtil.error(
+        res,
+        error.message,
+        400
+      );
     }
   };
 
-  getAccount: RequestHandler = async (req, res, next): Promise<void> => {
+  getAccount: RequestHandler = async (req, res): Promise<void> => {
     try {
       const accountId = String(req.params.id);
       const account = await this.accountService.getAccount(accountId);
@@ -48,25 +44,27 @@ export class AccountController {
         res,
         "ACCOUNT_FETCHED",
         account,
-        200,
-        this.getLanguage(req)
+        200
       );
-    } catch (error: unknown) {
-      next(error);
+    } catch (error: any) {
+      ResponseUtil.error(
+        res,
+        error.message,
+        400
+      );
     }
   };
 
-  creditAccount: RequestHandler = async (req, res, next): Promise<void> => {
+  creditAccount: RequestHandler = async (req, res): Promise<void> => {
     try {
       const payload = res.locals.validatedBody as MoneyOperationDto;
       const idempotencyKey = req.headers["idempotency-key"];
 
-      if (typeof idempotencyKey !== "string") {
+      if (typeof idempotencyKey !== "string" || !idempotencyKey.trim()) {
         ResponseUtil.error(
           res,
           "IDEMPOTENCY_KEY_REQUIRED",
-          400,
-          this.getLanguage(req)
+          400
         );
         return;
       }
@@ -81,25 +79,27 @@ export class AccountController {
         res,
         "ACCOUNT_CREDITED",
         result,
-        200,
-        this.getLanguage(req)
+        200
       );
-    } catch (error: unknown) {
-      next(error);
+    } catch (error: any) {
+      ResponseUtil.error(
+        res,
+        error.message,
+        400
+      );
     }
   };
 
-  debitAccount: RequestHandler = async (req, res, next): Promise<void> => {
+  debitAccount: RequestHandler = async (req, res): Promise<void> => {
     try {
       const payload = res.locals.validatedBody as MoneyOperationDto;
       const idempotencyKey = req.headers["idempotency-key"];
 
-      if (typeof idempotencyKey !== "string") {
+      if (typeof idempotencyKey !== "string" || !idempotencyKey.trim()) {
         ResponseUtil.error(
           res,
           "IDEMPOTENCY_KEY_REQUIRED",
-          400,
-          this.getLanguage(req)
+          400
         );
         return;
       }
@@ -114,18 +114,20 @@ export class AccountController {
         res,
         "ACCOUNT_DEBITED",
         result,
-        200,
-        this.getLanguage(req)
+        200
       );
-    } catch (error: unknown) {
-      next(error);
+    } catch (error: any) {
+      ResponseUtil.error(
+        res,
+        error.message,
+        400
+      );
     }
   };
 
   getAccountTransactions: RequestHandler = async (
     req,
-    res,
-    next
+    res
   ): Promise<void> => {
     try {
       const pagination = res.locals.pagination as PaginationDto;
@@ -139,11 +141,14 @@ export class AccountController {
         res,
         "TRANSACTIONS_FETCHED",
         result,
-        200,
-        this.getLanguage(req)
+        200
       );
-    } catch (error: unknown) {
-      next(error);
+    } catch (error: any) {
+      ResponseUtil.error(
+        res,
+        error.message,
+        400
+      );
     }
   };
 }

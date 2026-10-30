@@ -1,4 +1,5 @@
-import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
+import { bigintTransformer } from '../../utils/transformers';
 
 @Entity({ name: 'accounts' })
 export class Account {
@@ -11,12 +12,10 @@ export class Account {
   @Column({ type: 'varchar' })
   currency!: string;
 
-  @Column({ type: 'bigint', default: 0 })
+  @Column({ type: 'bigint', transformer: bigintTransformer, default: 0 })
   balance!: number;
 
   @CreateDateColumn({ name: 'created_at', type: 'timestamptz' })
   createdAt!: Date;
-
-  @CreateDateColumn({ name: 'updated_at', type: 'timestamptz' })
-  updatedAt!: Date;
+  
 }
