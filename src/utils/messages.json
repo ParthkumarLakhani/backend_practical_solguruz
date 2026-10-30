@@ -21,6 +21,9 @@
     "MONEY_VALIDATION_FAILED": "Money operation validation failed",
     "PAGINATION_VALIDATION_FAILED": "Pagination validation failed",
     "IDEMPOTENCY_KEY_VALIDATION_FAILED": "Idempotency key validation failed",
-    "TRANSFER_VALIDATION_FAILED": "Transfer validation failed"
+    "TRANSFER_VALIDATION_FAILED": "Transfer validation failed",
+    "IDEMPOTENCY_RECORD_NOT_FOUND":"Idempotency record not found",
+    "IDEMPOTENCY_KEY_REUSED":"Idempotency key reused",
+    "IDEMPOTENCY_RESULT_NOT_AVAILABLE":"Idempotency result not available"
   }
 }
